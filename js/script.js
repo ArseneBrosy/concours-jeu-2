@@ -7,13 +7,12 @@
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
 
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 const ROTATION_SPEED = 0.02;
 const ROTATION_MAX_SPEED = 2;
 const ROTATION_FRICTION = 0.03;
 const ACCELERATION_SPEED = 0.01;
-const DIRECTION_SPEED = 1;
 const SPEED = 2;
 const CAR_WIDTH = 50;
 const CAR_HEIGHT = 100;
@@ -24,18 +23,15 @@ let car = {
   x: canvas.clientWidth / 2,
   y: canvas.clientHeight / 2,
   rotation: 0,
-  velocityAngle: 0,
-  speed: 0,
-  targetSpeed: 0,
   xVelocity: 0,
   yVelocity: 0,
+  velocity: 0,
+  xTargetVelocity: 0,
+  yTargetVelocity: 0,
   rVelocity: 0,
   direction: 0,
-  running: true
+  running: false
 };
-
-//region Functions
-//endregion
 
 setInterval(() => {
   canvas.width = canvas.clientWidth;
@@ -47,7 +43,7 @@ setInterval(() => {
   car.rVelocity += ROTATION_SPEED * car.direction;
   car.rVelocity = Math.max(Math.min(car.rVelocity, ROTATION_MAX_SPEED), -ROTATION_MAX_SPEED);
   // rotation friction
-  if (car.direction === 0) {
+  if (car.direction === 0 || !car.running) {
     if (Math.abs(car.rVelocity) <= ROTATION_FRICTION) {
       car.rVelocity = 0;
     } else {
@@ -55,29 +51,27 @@ setInterval(() => {
     }
   }
   car.rotation += car.rVelocity;
-  car.rotation = car.rotation % 360;
 
   // speed
-  // target speed
-  car.targetSpeed = SPEED * car.running;
-  // actual speed
-  if (Math.abs(car.speed - car.targetSpeed) <= ACCELERATION_SPEED) {
-    car.speed = car.targetSpeed;
+  // target velocity
+  car.xTargetVelocity = Math.sin(car.rotation * (Math.PI/180)) * SPEED * car.running;
+  car.yTargetVelocity = Math.cos(car.rotation * (Math.PI/180)) * SPEED * car.running * -1;
+  // actual velocity
+  if (Math.abs(car.xTargetVelocity - car.xVelocity) <= ACCELERATION_SPEED) {
+    car.xVelocity = car.xTargetVelocity;
   } else {
-    car.speed += ACCELERATION_SPEED * (car.speed < car.targetSpeed ? 1 : -1);
+    car.xVelocity += ACCELERATION_SPEED * (car.xTargetVelocity > car.xVelocity ? 1 : -1);
   }
-  // velocity angle
-  if (Math.abs(car.velocityAngle - car.rotation) <= DIRECTION_SPEED) {
-    car.velocityAngle = car.rotation;
+  if (Math.abs(car.yTargetVelocity - car.yVelocity) <= ACCELERATION_SPEED) {
+    car.yVelocity = car.yTargetVelocity;
   } else {
-    car.velocityAngle += DIRECTION_SPEED * (car.velocityAngle > car.rotation ? -1 : 1);
+    car.yVelocity += ACCELERATION_SPEED * (car.yTargetVelocity > car.yVelocity ? 1 : -1);
   }
   // calculate velocity
-  car.xVelocity = Math.sin(car.velocityAngle * (Math.PI/180)) * car.speed;
-  car.yVelocity = Math.cos(car.velocityAngle * (Math.PI/180)) * -car.speed;
+  car.velocity = Math.sqrt(car.xVelocity**2 + car.yVelocity**2);
   // move car
-  //car.x += car.xVelocity;
-  //car.y += car.yVelocity;
+  car.x += car.xVelocity;
+  car.y += car.yVelocity;
   //endregion
   //endregion
 
@@ -99,7 +93,7 @@ setInterval(() => {
     ctx.strokeStyle = "blue";
     ctx.beginPath();
     ctx.moveTo(car.x, car.y);
-    ctx.lineTo(car.x + Math.sin(car.rotation * (Math.PI/180)) * 100, car.y + Math.cos(car.rotation * (Math.PI/180)) * -100);
+    ctx.lineTo(car.x + car.xTargetVelocity * mul, car.y + car.yTargetVelocity * mul);
     ctx.stroke();
     // actual
     ctx.strokeStyle = "red";
