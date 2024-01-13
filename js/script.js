@@ -36,12 +36,16 @@ let car = {
   steer_angle: 0,
   direction: 0,
   running: false,
+  brakes: true,
 
   // constants
   maxSpeed: 3,
-  acceleration: 0.01
+  acceleration: 0.05,
+  free_wheels_friction: 0.006,
+  brake_wheels_friction: 0.06
 };
 
+//region Functions
 function round(x, decimals = 3) {
   return Math.floor(x * 10**decimals) / 10**decimals;
 }
@@ -63,6 +67,7 @@ function localToWorldTransform(rotation, x, y) {
   const localY = round(x * Math.sin(rotation * (Math.PI / 180)) + y * Math.cos(rotation * (Math.PI / 180)));
   return [localX, localY];
 }
+//endregion
 
 setInterval(() => {
   canvas.width = canvas.clientWidth;
@@ -71,10 +76,19 @@ setInterval(() => {
   //region Physics
   //region Car
   // speed
-  if (Math.abs(car.speed - car.maxSpeed * car.running) <= car.acceleration) {
-    car.speed = car.maxSpeed * car.running;
+  if (car.running) {
+    if (Math.abs(car.speed - car.maxSpeed) <= car.acceleration) {
+      car.speed = car.maxSpeed;
+    } else {
+      car.speed += car.acceleration * (car.speed < car.maxSpeed ? 1 : -1);
+    }
   } else {
-    car.speed += car.acceleration * (car.speed < car.maxSpeed * car.running ? 1 : -1);
+    const brakeForce = car.brakes ? car.brake_wheels_friction : car.free_wheels_friction;
+    if (Math.abs(car.speed) <= brakeForce) {
+      car.speed = 0;
+    } else {
+      car.speed -= brakeForce * (car.speed > 0 ? 1 : -1);
+    }
   }
 
   // wheel direction
