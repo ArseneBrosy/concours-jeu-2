@@ -7,12 +7,8 @@
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
 
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 
-const ROTATION_SPEED = 0.02;
-const ROTATION_MAX_SPEED = 2;
-const ROTATION_FRICTION = 0.03;
-const MAX_STEER_ANGLE = 30;
 const WHEEl_TURN_SPEED = 1;
 const CAR_WIDTH = 50;
 const CAR_LENGTH = 100;
@@ -36,10 +32,11 @@ let car = {
   steer_angle: 0,
   direction: 0,
   running: false,
-  brakes: true,
+  brakes: false,
 
   // constants
   maxSpeed: 3,
+  maxSteerAngle: 30,
   acceleration: 0.05,
   free_wheels_friction: 0.006,
   brake_wheels_friction: 0.06
@@ -58,14 +55,21 @@ function moveCar(steer, speed, length) {
   const y = Math.cos(turnAngle * (Math.PI/180)) * length;
   const xOffset = -0.5 * y + x;
   const yOffset = Math.sin(turnAngle * (Math.PI/180)) * length / 2;
-  return [turnAngle, xOffset, yOffset];
+  return {
+    r: turnAngle,
+    x: xOffset,
+    y: yOffset
+  };
 }
 
 function localToWorldTransform(rotation, x, y) {
   rotation -= 90;
   const localX = round(x * Math.cos(rotation * (Math.PI / 180)) - y * Math.sin(rotation * (Math.PI / 180)));
   const localY = round(x * Math.sin(rotation * (Math.PI / 180)) + y * Math.cos(rotation * (Math.PI / 180)));
-  return [localX, localY];
+  return {
+    x: localX,
+    y: localY
+  };
 }
 //endregion
 
@@ -92,7 +96,7 @@ setInterval(() => {
   }
 
   // wheel direction
-  const frontForceTarget = MAX_STEER_ANGLE * car.direction;
+  const frontForceTarget = car.maxSteerAngle * car.direction;
   if (Math.abs(car.steer_angle - frontForceTarget) <= WHEEl_TURN_SPEED) {
     car.steer_angle = frontForceTarget;
   } else {
@@ -103,10 +107,10 @@ setInterval(() => {
 
   // turning
   const transformValues = moveCar(car.steer_angle, car.speed, CAR_LENGTH);
-  const localTranslate = localToWorldTransform(car.rotation, transformValues[1], transformValues[2]);
-  car.rotation += transformValues[0];
-  car.x += localTranslate[0];
-  car.y += localTranslate[1];
+  const localTranslate = localToWorldTransform(car.rotation, transformValues.x, transformValues.y);
+  car.rotation += transformValues.r;
+  car.x += localTranslate.x;
+  car.y += localTranslate.y;
   //endregion
   //endregion
 
@@ -133,10 +137,10 @@ setInterval(() => {
     // transform
     ctx.fillStyle = "red";
     ctx.beginPath();
-    ctx.arc(car.x + localTranslate[0] * mul, car.y + localTranslate[1] * mul, 5, 0, 2 * Math.PI);
+    ctx.arc(car.x + localTranslate.x * mul, car.y + localTranslate.y * mul, 5, 0, 2 * Math.PI);
     ctx.fill();
-    //endregion
   }
+  //endregion
   //endregion
 }, 0);
 
