@@ -76,7 +76,6 @@ function drift(rotation) {
 }
 
 function rotateAround(rotation, x, y, cx, cy) {
-  rotation -= 90;
   const localX = round((x - cx) * Math.cos(rotation * (Math.PI / 180)) - (y - cy) * Math.sin(rotation * (Math.PI / 180))) + cx;
   const localY = round((x - cx) * Math.sin(rotation * (Math.PI / 180)) + (y - cy) * Math.cos(rotation * (Math.PI / 180))) + cy;
   return {
@@ -131,7 +130,7 @@ setInterval(() => {
 
   //region move
   const transformValues = moveCar(car.steer_angle, car.speed, CAR_LENGTH);
-  const localTranslate = rotateAround(car.rotation, transformValues.x, transformValues.y, 0, 0);
+  const localTranslate = rotateAround(car.rotation - 90, transformValues.x, transformValues.y, 0, 0);
   const frontX = car.x + Math.sin(car.rotation * (Math.PI/180)) * CAR_LENGTH / 2;
   const frontY = car.y + Math.cos(car.rotation * (Math.PI/180)) * -CAR_LENGTH / 2;
   const driftValues = rotateAround(20, car.x, car.y, frontX, frontY);
@@ -159,6 +158,7 @@ setInterval(() => {
   car.prevX = car.x;
   car.prevY = car.y;
   //endregion
+
   //endregion
   //endregion
 
@@ -192,6 +192,11 @@ setInterval(() => {
     ctx.fillStyle = "red";
     ctx.beginPath();
     ctx.arc(car.x + localTranslate.x * mul, car.y + localTranslate.y * mul, 5, 0, 2 * Math.PI);
+    ctx.fill();
+    // drift
+    ctx.fillStyle = "lime";
+    ctx.beginPath();
+    ctx.arc(driftValues.x, driftValues.y, 5, 0, 2 * Math.PI);
     ctx.fill();
     // inertia
     ctx.fillStyle = "red";
