@@ -34,6 +34,17 @@ let car = {
   height: 100,
 };
 
+let camera = {
+  target: {
+    x: car.x,
+    y: car.y
+  },
+  x: car.x,
+  y: car.y,
+  range_width: canvas.clientWidth / 2,
+  range_height: canvas.clientHeight / 2
+};
+
 setInterval(() => {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
@@ -83,13 +94,23 @@ setInterval(() => {
   //endregion
   //endregion
 
+  //region Camera
+  camera.target.x = car.x;
+  camera.target.y = car.y;
+  //endregion
+
   //region Draw
+  //region Camera
+  const camOffsetX = camera.x - canvas.clientWidth / 2;
+  const camOffsetY = camera.y - canvas.height / 2;
+  //endregion
+
   //region Car
-  ctx.translate(car.x, car.y);
+  ctx.translate(car.x + camOffsetX, car.y + camOffsetY);
   ctx.rotate(car.rotation * (Math.PI/180));
   ctx.drawImage(CAR_SPRITE, -car.width / 2, -car.height / 2, car.width, car.height);
   ctx.rotate(-car.rotation * (Math.PI/180));
-  ctx.translate(-car.x, -car.y);
+  ctx.translate(-car.x - camOffsetX, -car.y - camOffsetY);
   //endregion
 
   //region Debug
@@ -100,15 +121,18 @@ setInterval(() => {
     // target
     ctx.strokeStyle = "blue";
     ctx.beginPath();
-    ctx.moveTo(car.x, car.y);
-    ctx.lineTo(car.x + car.xTargetVelocity * mul, car.y + car.yTargetVelocity * mul);
+    ctx.moveTo(car.x + camOffsetX, car.y + camOffsetY);
+    ctx.lineTo(car.x + car.xTargetVelocity * mul + camOffsetX, car.y + car.yTargetVelocity * mul + camOffsetY);
     ctx.stroke();
     // actual
     ctx.strokeStyle = "red";
     ctx.beginPath();
-    ctx.moveTo(car.x, car.y);
-    ctx.lineTo(car.x + car.xVelocity * mul, car.y + car.yVelocity * mul);
+    ctx.moveTo(car.x + camOffsetX, car.y + camOffsetY);
+    ctx.lineTo(car.x + car.xVelocity * mul + camOffsetX, car.y + car.yVelocity * mul + camOffsetY);
     ctx.stroke();
+    // camera
+    ctx.strokeStyle = "red";
+    ctx.strokeRect(canvas.width / 2 - camera.range_width / 2, canvas.height / 2 - camera.range_height / 2, camera.range_width, camera.range_height);
   }
   //endregion
   //endregion
