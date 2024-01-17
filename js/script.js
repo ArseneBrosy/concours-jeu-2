@@ -35,14 +35,14 @@ let car = {
 };
 
 let camera = {
+  speed: car.max_speed,
   target: {
     x: car.x,
     y: car.y
   },
   x: car.x,
   y: car.y,
-  range_width: canvas.clientWidth / 2,
-  range_height: canvas.clientHeight / 2
+  range_radius: canvas.clientHeight / 3
 };
 
 setInterval(() => {
@@ -97,12 +97,18 @@ setInterval(() => {
   //region Camera
   camera.target.x = car.x;
   camera.target.y = car.y;
+
+  const camVelocityX = (camera.target.x - camera.x) / camera.range_radius * camera.speed;
+  const camVelocityY = (camera.target.y - camera.y) / camera.range_radius * camera.speed;
+
+  camera.x += camVelocityX;
+  camera.y += camVelocityY;
   //endregion
 
   //region Draw
   //region Camera
-  const camOffsetX = camera.x - canvas.clientWidth / 2;
-  const camOffsetY = camera.y - canvas.height / 2;
+  const camOffsetX = -camera.x + canvas.clientWidth / 2;
+  const camOffsetY = -camera.y + canvas.height / 2;
   //endregion
 
   //region Car
@@ -132,7 +138,14 @@ setInterval(() => {
     ctx.stroke();
     // camera
     ctx.strokeStyle = "red";
-    ctx.strokeRect(canvas.width / 2 - camera.range_width / 2, canvas.height / 2 - camera.range_height / 2, camera.range_width, camera.range_height);
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height / 2, camera.range_radius, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.strokeStyle = "green";
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, canvas.height / 2);
+    ctx.lineTo(canvas.width / 2 + camVelocityX * 100, canvas.height / 2 + camVelocityY * 100);
+    ctx.stroke();
   }
   //endregion
   //endregion
