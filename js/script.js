@@ -40,10 +40,12 @@ setInterval(() => {
 
   //region Physics
   //region Car
-  // rotation
+  //region rotation
   car.rVelocity += car.rotation_acceleration * car.direction;
   car.rVelocity = Math.max(Math.min(car.rVelocity, car.max_rotation_speed), -car.max_rotation_speed);
-  // rotation friction
+  //endregion
+
+  //region rotation friction
   if (car.direction === 0) {
     if (Math.abs(car.rVelocity) <= car.rotation_friction) {
       car.rVelocity = 0;
@@ -52,12 +54,15 @@ setInterval(() => {
     }
   }
   car.rotation += car.rVelocity;
+  //endregion
 
-  // speed
-  // target velocity
+  //region speed
+  //region target velocity
   car.xTargetVelocity = Math.sin(car.rotation * (Math.PI/180)) * car.max_speed * car.running;
   car.yTargetVelocity = Math.cos(car.rotation * (Math.PI/180)) * car.max_speed * car.running * -1;
-  // actual velocity
+  //endregion
+
+  //region actual velocity
   if (Math.abs(car.xTargetVelocity - car.xVelocity) <= car.acceleration) {
     car.xVelocity = car.xTargetVelocity;
   } else {
@@ -68,9 +73,13 @@ setInterval(() => {
   } else {
     car.yVelocity += car.acceleration * (car.yTargetVelocity > car.yVelocity ? 1 : -1);
   }
-  // move car
+  //endregion
+
+  //region move car
   car.x += car.xVelocity;
   car.y += car.yVelocity;
+  //endregion
+  //endregion
   //endregion
   //endregion
 
@@ -100,8 +109,8 @@ setInterval(() => {
     ctx.moveTo(car.x, car.y);
     ctx.lineTo(car.x + car.xVelocity * mul, car.y + car.yVelocity * mul);
     ctx.stroke();
-    //endregion
   }
+  //endregion
   //endregion
 }, 0);
 
