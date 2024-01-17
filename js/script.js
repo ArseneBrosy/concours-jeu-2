@@ -7,7 +7,7 @@
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
 
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 const WHEEl_TURN_SPEED = 1;
 const CAR_WIDTH = 50;
@@ -133,7 +133,6 @@ setInterval(() => {
   const localTranslate = rotateAround(car.rotation - 90, transformValues.x, transformValues.y, 0, 0);
   const frontX = car.x + Math.sin(car.rotation * (Math.PI/180)) * CAR_LENGTH / 2;
   const frontY = car.y + Math.cos(car.rotation * (Math.PI/180)) * -CAR_LENGTH / 2;
-  const driftValues = rotateAround(20, car.x, car.y, frontX, frontY);
   const centrifugal = {
     x: Math.sin((car.rotation + 90) * (Math.PI/180)) * -car.speed * car.steer_angle / car.maxSteerAngle,
     y: Math.cos((car.rotation + 90) * (Math.PI/180)) * car.speed * car.steer_angle / car.maxSteerAngle,
@@ -141,6 +140,12 @@ setInterval(() => {
   car.rotation += transformValues.r;
   car.x += localTranslate.x;
   car.y += localTranslate.y;
+
+  const driftAngle = car.steer_angle / car.maxSteerAngle;
+  const driftValues = rotateAround(driftAngle, car.x, car.y, frontX, frontY);
+  /*car.rotation += driftAngle;
+  car.x = driftValues.x;
+  car.y = driftValues.y;*/
   //endregion
 
   //region inertia
@@ -158,7 +163,6 @@ setInterval(() => {
   car.prevX = car.x;
   car.prevY = car.y;
   //endregion
-
   //endregion
   //endregion
 
