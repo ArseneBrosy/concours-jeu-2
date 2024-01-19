@@ -12,6 +12,13 @@ const DEBUG_MODE = true;
 const CAR_SPRITE = new Image();
 CAR_SPRITE.src = "images/car.png";
 
+const TRACK = [
+  [0, 0],
+  [0, 400],
+  [400, 400],
+  [100, 0],
+];
+
 let car = {
   x: canvas.clientWidth / 2,
   y: canvas.clientHeight / 2,
@@ -45,6 +52,51 @@ let camera = {
   range_radius: canvas.clientHeight / 3
 };
 
+//region Functions
+function pointToLine(x, y, x1, y1, x2, y2) {
+
+  let A = x - x1;
+  let B = y - y1;
+  let C = x2 - x1;
+  let D = y2 - y1;
+
+  let dot = A * C + B * D;
+  let len_sq = C * C + D * D;
+  let param = -1;
+  if (len_sq !== 0) //in case of 0 length line
+    param = dot / len_sq;
+
+  let xx, yy;
+
+  if (param < 0) {
+    xx = x1;
+    yy = y1;
+  }
+  else if (param > 1) {
+    xx = x2;
+    yy = y2;
+  }
+  else {
+    xx = x1 + param * C;
+    yy = y1 + param * D;
+  }
+
+  let dx = x - xx;
+  let dy = y - yy;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function distanceToTrack(x, y) {
+  let minDistance = Infinity;
+  for (let i = 0; i < TRACK.length; i++) {
+    const nextIndex = (i + 1) % TRACK.length;
+    const distance = pointToLine(x, y, TRACK[i][0], TRACK[i][1], TRACK[nextIndex][0], TRACK[nextIndex][1]);
+    minDistance = Math.min(distance, minDistance);
+  }
+  return minDistance;
+}
+//endregion
+
 setInterval(() => {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
@@ -57,7 +109,7 @@ setInterval(() => {
   //endregion
 
   //region rotation friction
-  if (car.direction === 0) {
+  if (car.direction === 0 || car.running === false) {
     if (Math.abs(car.rVelocity) <= car.rotation_friction) {
       car.rVelocity = 0;
     } else {
@@ -119,6 +171,17 @@ setInterval(() => {
   ctx.translate(-car.x - camOffsetX, -car.y - camOffsetY);
   //endregion
 
+  //region Track
+  ctx.strokeStyle = "black";
+  ctx.beginPath();
+  ctx.moveTo(TRACK[0][0] + camOffsetX, TRACK[0][1] + camOffsetY);
+  for (let point of TRACK) {
+    ctx.lineTo(point[0] + camOffsetX, point[1] + camOffsetY);
+  }
+  ctx.closePath();
+  ctx.stroke();
+  //endregion
+
   //region Debug
   if (DEBUG_MODE) {
     // Velocity
@@ -136,15 +199,11 @@ setInterval(() => {
     ctx.moveTo(car.x + camOffsetX, car.y + camOffsetY);
     ctx.lineTo(car.x + car.xVelocity * mul + camOffsetX, car.y + car.yVelocity * mul + camOffsetY);
     ctx.stroke();
-    // camera
-    ctx.strokeStyle = "red";
+    // distance to road
+    const distTest = distanceToTrack(car.x, car.y);
+    ctx.strokeStyle = "blue";
     ctx.beginPath();
-    ctx.arc(canvas.width / 2, canvas.height / 2, camera.range_radius, 0, 2 * Math.PI);
-    ctx.stroke();
-    ctx.strokeStyle = "green";
-    ctx.beginPath();
-    ctx.moveTo(canvas.width / 2, canvas.height / 2);
-    ctx.lineTo(canvas.width / 2 + camVelocityX * 100, canvas.height / 2 + camVelocityY * 100);
+    ctx.arc(car.x + camOffsetX, car.y + camOffsetY, distTest, 0, 2 * Math.PI);
     ctx.stroke();
   }
   //endregion
