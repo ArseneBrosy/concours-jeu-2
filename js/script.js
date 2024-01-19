@@ -7,7 +7,7 @@
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
 
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 const CAR_SPRITE = new Image();
 CAR_SPRITE.src = "images/car.png";
@@ -640,8 +640,10 @@ setInterval(() => {
 
   //region Draw
   //region Camera
-  const camOffsetX = -camera.x + canvas.clientWidth / 2;
-  const camOffsetY = -camera.y + canvas.height / 2;
+  const camAdditionalX = camVelocityX * -camera.range_radius / camera.speed * 2;
+  const camAdditionalY = camVelocityY * -camera.range_radius / camera.speed * 2;
+  const camOffsetX = -camera.x + camAdditionalX + canvas.clientWidth / 2;
+  const camOffsetY = -camera.y + camAdditionalY + canvas.height / 2;
   //endregion
 
   //region Track
@@ -680,6 +682,16 @@ setInterval(() => {
     ctx.beginPath();
     ctx.moveTo(car.x + camOffsetX, car.y + camOffsetY);
     ctx.lineTo(car.x + car.xVelocity * mul + camOffsetX, car.y + car.yVelocity * mul + camOffsetY);
+    ctx.stroke();
+    // camera
+    ctx.strokeStyle = "red";
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height / 2, camera.range_radius, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.strokeStyle = "green";
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, canvas.height / 2);
+    ctx.lineTo(canvas.width / 2 + camVelocityX * 100, canvas.height / 2 + camVelocityY * 100);
     ctx.stroke();
     // distance to road
     const distTest = distanceToTrack(car.x, car.y);
