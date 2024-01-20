@@ -499,6 +499,7 @@ const TRACK = [
   [2342, 1262],
   [2390, 1216]
 ];
+const TRACK_WIDTH = 250;
 
 let car = {
   x: TRACK[0][0],
@@ -510,14 +511,14 @@ let car = {
   yTargetVelocity: 0,
   rVelocity: 0,
   direction: 0,
-  acceleration: 0.01,
-  rotation_acceleration : 0.02,
-  rotation_friction: 0.03,
   running: false,
 
   // constants
   max_rotation_speed: 2,
-  max_speed: 2,
+  rotation_acceleration : 0.02,
+  rotation_friction: 0.03,
+  acceleration: 0.01,
+  max_speed: 3,
   width: 50,
   height: 100,
 };
@@ -534,6 +535,10 @@ let camera = {
 };
 
 //region Functions
+function pointToPoint(x1, y1, x2, y2) {
+  return Math.sqrt((x1 - x2)**2 + (y1 - y2)**2);
+}
+
 function pointToLine(x, y, x1, y1, x2, y2) {
 
   let A = x - x1;
@@ -578,6 +583,8 @@ function distanceToTrack(x, y) {
 }
 //endregion
 
+let trackPos = 0;
+let laps = 0;
 setInterval(() => {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
@@ -625,6 +632,16 @@ setInterval(() => {
   //endregion
   //endregion
   //endregion
+
+  //region Track
+  if (pointToPoint(car.x, car.y, TRACK[trackPos][0], TRACK[trackPos][1]) <= TRACK_WIDTH) {
+    trackPos++;
+    if (trackPos >= TRACK.length) {
+      trackPos = 0;
+      laps++;
+    }
+  }
+  //endregion
   //endregion
 
   //region Camera
@@ -648,7 +665,7 @@ setInterval(() => {
 
   //region Track
   ctx.strokeStyle = "black";
-  ctx.lineWidth  = 250;
+  ctx.lineWidth  = TRACK_WIDTH;
   ctx.beginPath();
   ctx.moveTo(TRACK[0][0] + camOffsetX, TRACK[0][1] + camOffsetY);
   for (let point of TRACK) {
@@ -664,6 +681,28 @@ setInterval(() => {
   ctx.drawImage(CAR_SPRITE, -car.width / 2, -car.height / 2, car.width, car.height);
   ctx.rotate(-car.rotation * (Math.PI/180));
   ctx.translate(-car.x - camOffsetX, -car.y - camOffsetY);
+  //endregion
+
+  //region HUD
+  const trackDis = distanceToTrack(car.x, car.y);
+  document.querySelector("#off-track").style.display = trackDis <= TRACK_WIDTH / 2 ? "none" : "block";
+
+  //region Minitrack
+  ctx.strokeStyle = "grey";
+  ctx.lineWidth  = 10;
+  ctx.beginPath();
+  ctx.moveTo(TRACK[0][0] / 20, TRACK[0][1] / 20);
+  for (let point of TRACK) {
+    ctx.lineTo(point[0] / 20, point[1] / 20);
+  }
+  ctx.closePath();
+  ctx.stroke();
+  // position
+  ctx.fillStyle = "red";
+  ctx.beginPath();
+  ctx.arc(TRACK[trackPos][0] / 20, TRACK[trackPos][1] / 20, 5, 0, 2 * Math.PI);
+  ctx.fill();
+  //endregion
   //endregion
 
   //region Debug
@@ -694,10 +733,9 @@ setInterval(() => {
     ctx.lineTo(canvas.width / 2 + camVelocityX * 100, canvas.height / 2 + camVelocityY * 100);
     ctx.stroke();
     // distance to road
-    const distTest = distanceToTrack(car.x, car.y);
-    ctx.strokeStyle = "blue";
+    ctx.strokeStyle = trackDis <= TRACK_WIDTH / 2 ? "green": "red";
     ctx.beginPath();
-    ctx.arc(car.x + camOffsetX, car.y + camOffsetY, distTest, 0, 2 * Math.PI);
+    ctx.arc(car.x + camOffsetX, car.y + camOffsetY, trackDis, 0, 2 * Math.PI);
     ctx.stroke();
   }
   //endregion

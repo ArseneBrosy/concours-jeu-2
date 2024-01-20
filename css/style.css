@@ -3,9 +3,37 @@ body {
     padding: 0;
 
     overflow: hidden;
+
+    font-family: Inter, sans-serif;
 }
 
 canvas {
     height: 100vh;
     width: 100vw;
+}
+
+#hud {
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+    top: 0;
+}
+
+#off-track {
+    text-align: center;
+    color: red;
+    font-size: 3rem;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
 }
