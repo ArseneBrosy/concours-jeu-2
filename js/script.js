@@ -500,6 +500,9 @@ const TRACK = [
   [2390, 1216]
 ];
 const TRACK_WIDTH = 250;
+const MINI_TRACK_SIZE = 400;
+const MINI_TRACK_MARGIN_X = 10;
+const MINI_TRACK_MARGIN_Y = -200;
 
 let car = {
   x: TRACK[0][0],
@@ -585,6 +588,19 @@ function distanceToTrack(x, y) {
 
 let trackPos = 0;
 let laps = 0;
+let trackMinX = Infinity;
+let trackMaxX = -Infinity;
+let trackMinY = Infinity;
+let trackMaxY = -Infinity;
+for (let point of TRACK) {
+  trackMinX = Math.min(trackMinX, point[0]);
+  trackMaxX = Math.max(trackMaxX, point[0]);
+  trackMinY = Math.min(trackMinY, point[1]);
+  trackMaxY = Math.max(trackMaxY, point[1]);
+}
+const trackWidth = trackMaxX - trackMinX;
+const trackHeight = trackMaxY - trackMinY;
+const miniTrackMul = Math.max(trackWidth / MINI_TRACK_SIZE, trackHeight / MINI_TRACK_SIZE);
 setInterval(() => {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
@@ -691,16 +707,16 @@ setInterval(() => {
   ctx.strokeStyle = "grey";
   ctx.lineWidth  = 10;
   ctx.beginPath();
-  ctx.moveTo(TRACK[0][0] / 20, TRACK[0][1] / 20);
+  ctx.moveTo(TRACK[0][0] / miniTrackMul + MINI_TRACK_MARGIN_X, TRACK[0][1] / miniTrackMul + canvas.height - MINI_TRACK_SIZE - MINI_TRACK_MARGIN_Y);
   for (let point of TRACK) {
-    ctx.lineTo(point[0] / 20, point[1] / 20);
+    ctx.lineTo(point[0] / miniTrackMul + MINI_TRACK_MARGIN_X, point[1] / miniTrackMul + canvas.height - MINI_TRACK_SIZE - MINI_TRACK_MARGIN_Y);
   }
   ctx.closePath();
   ctx.stroke();
   // position
   ctx.fillStyle = "red";
   ctx.beginPath();
-  ctx.arc(TRACK[trackPos][0] / 20, TRACK[trackPos][1] / 20, 5, 0, 2 * Math.PI);
+  ctx.arc(TRACK[trackPos][0] / miniTrackMul + MINI_TRACK_MARGIN_X, TRACK[trackPos][1] / miniTrackMul + canvas.height - MINI_TRACK_SIZE - MINI_TRACK_MARGIN_Y, 5, 0, 2 * Math.PI);
   ctx.fill();
   //endregion
   //endregion
