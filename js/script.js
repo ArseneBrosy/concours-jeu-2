@@ -9,7 +9,7 @@ const ctx = canvas.getContext("2d");
 
 const DEBUG_MODE = false;
 const GROUND_FRICTION = 3;
-const GROUND_DECCELERATION = 0.01;
+const GROUND_DECELERATION = 0.01;
 
 const CAR_SPRITE = new Image();
 CAR_SPRITE.src = "images/car.png";
@@ -587,6 +587,22 @@ function distanceToTrack(x, y) {
   }
   return minDistance;
 }
+
+function returnToTrack(point) {
+  const nextPoint = (point + 1) % TRACK.length;
+  const xOffset = TRACK[nextPoint][0] - TRACK[point][0];
+  const yOffset = TRACK[nextPoint][1] - TRACK[point][1];
+  const dis = Math.sqrt(xOffset**2 + yOffset**2);
+  const xAngle = xOffset / dis;
+  const yAngle = yOffset / dis;
+  let angle = Math.acos(xAngle) * (180/Math.PI);
+  if (yAngle > 0) {
+    angle = 360 - angle;
+  }
+  car.rotation = -angle + 90;
+  car.x = TRACK[point][0];
+  car.y = TRACK[point][1];
+}
 //endregion
 
 let trackPos = 0;
@@ -624,10 +640,10 @@ setInterval(() => {
   //region Car
   //region ground friction
   const gftarget = onTrack ? 1 : GROUND_FRICTION;
-  if (Math.abs(car.groundFriction - gftarget) <= GROUND_DECCELERATION) {
+  if (Math.abs(car.groundFriction - gftarget) <= GROUND_DECELERATION) {
     car.groundFriction = gftarget;
   } else {
-    car.groundFriction += GROUND_DECCELERATION * (car.groundFriction < gftarget ? 1 : -1);
+    car.groundFriction += GROUND_DECELERATION * (car.groundFriction < gftarget ? 1 : -1);
   }
   //endregion
 
