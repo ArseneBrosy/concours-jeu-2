@@ -8,6 +8,8 @@ const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
 
 const DEBUG_MODE = false;
+const GROUND_FRICTION = 3;
+const GROUND_DECCELERATION = 0.01;
 
 const CAR_SPRITE = new Image();
 CAR_SPRITE.src = "images/car.png";
@@ -514,6 +516,7 @@ let car = {
   yTargetVelocity: 0,
   rVelocity: 0,
   direction: 0,
+  groundFriction: 1,
   running: false,
 
   // constants
@@ -606,7 +609,28 @@ setInterval(() => {
   canvas.height = canvas.clientHeight;
 
   //region Physics
+  //region Track
+  const trackDis = distanceToTrack(car.x, car.y);
+  const onTrack = trackDis <= TRACK_WIDTH / 2;
+  if (pointToPoint(car.x, car.y, TRACK[trackPos][0], TRACK[trackPos][1]) <= TRACK_WIDTH) {
+    trackPos++;
+    if (trackPos >= TRACK.length) {
+      trackPos = 0;
+      laps++;
+    }
+  }
+  //endregion
+
   //region Car
+  //region ground friction
+  const gftarget = onTrack ? 1 : GROUND_FRICTION;
+  if (Math.abs(car.groundFriction - gftarget) <= GROUND_DECCELERATION) {
+    car.groundFriction = gftarget;
+  } else {
+    car.groundFriction += GROUND_DECCELERATION * (car.groundFriction < gftarget ? 1 : -1);
+  }
+  //endregion
+
   //region rotation
   car.rVelocity += car.rotation_acceleration * car.direction;
   car.rVelocity = Math.max(Math.min(car.rVelocity, car.max_rotation_speed), -car.max_rotation_speed);
@@ -620,7 +644,7 @@ setInterval(() => {
       car.rVelocity += car.rotation_friction * (car.rVelocity > 0 ? -1 : 1);
     }
   }
-  car.rotation += car.rVelocity;
+  car.rotation += car.rVelocity / car.groundFriction;
   //endregion
 
   //region speed
@@ -643,20 +667,10 @@ setInterval(() => {
   //endregion
 
   //region move car
-  car.x += car.xVelocity;
-  car.y += car.yVelocity;
+  car.x += car.xVelocity / car.groundFriction;
+  car.y += car.yVelocity / car.groundFriction;
   //endregion
   //endregion
-  //endregion
-
-  //region Track
-  if (pointToPoint(car.x, car.y, TRACK[trackPos][0], TRACK[trackPos][1]) <= TRACK_WIDTH) {
-    trackPos++;
-    if (trackPos >= TRACK.length) {
-      trackPos = 0;
-      laps++;
-    }
-  }
   //endregion
   //endregion
 
@@ -700,8 +714,7 @@ setInterval(() => {
   //endregion
 
   //region HUD
-  const trackDis = distanceToTrack(car.x, car.y);
-  document.querySelector("#off-track").style.display = trackDis <= TRACK_WIDTH / 2 ? "none" : "block";
+  document.querySelector("#off-track").style.display = onTrack ? "none" : "block";
 
   //region Minitrack
   ctx.strokeStyle = "grey";
@@ -749,7 +762,7 @@ setInterval(() => {
     ctx.lineTo(canvas.width / 2 + camVelocityX * 100, canvas.height / 2 + camVelocityY * 100);
     ctx.stroke();
     // distance to road
-    ctx.strokeStyle = trackDis <= TRACK_WIDTH / 2 ? "green": "red";
+    ctx.strokeStyle = onTrack ? "green": "red";
     ctx.beginPath();
     ctx.arc(car.x + camOffsetX, car.y + camOffsetY, trackDis, 0, 2 * Math.PI);
     ctx.stroke();
