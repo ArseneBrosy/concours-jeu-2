@@ -8,7 +8,7 @@ const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
 
 //region Constants
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 const GROUND_FRICTION = 3;
 const GROUND_DECELERATION = 0.01;
 const BACK_TO_TRACK_TIME = 3000;
@@ -327,7 +327,8 @@ setInterval(() => {
   if (isReturningToTrack && timeRemainingToTrack > 0) {
     timeRemainingToTrack -= 10;
     if (timeRemainingToTrack === 0) {
-      returnToTrack(trackPos);
+      const point = (trackPos - 5) % TRACK.length;
+      returnToTrack(point);
     }
   } else {
     timeRemainingToTrack = BACK_TO_TRACK_TIME;
