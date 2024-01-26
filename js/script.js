@@ -11,7 +11,7 @@ const ctx = canvas.getContext("2d");
 const DEBUG_MODE = false;
 const GROUND_FRICTION = 3;
 const GROUND_DECELERATION = 0.01;
-const BACK_TO_TRACK_TIME = 3000;
+const BACK_TO_TRACK_TIME = 1500;
 
 const CAR_SPRITE = new Image();
 CAR_SPRITE.src = "images/car.png";
@@ -43,8 +43,8 @@ let car = {
   rotation_friction: 0.03,
   acceleration: 0.01,
   max_speed: 3,
-  width: 50,
-  height: 100,
+  width: 60,
+  height: 120,
 };
 
 let camera = {

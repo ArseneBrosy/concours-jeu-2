@@ -7,6 +7,10 @@ body {
     font-family: Inter, sans-serif;
 }
 
+p {
+    margin: 0;
+}
+
 canvas {
     height: 100vh;
     width: 100vw;
@@ -17,6 +21,55 @@ canvas {
     width: 100vw;
     position: absolute;
     top: 0;
+    user-select: none;
+}
+
+#hud #top-bar {
+    height: 7vh;
+    margin: 5vh;
+    display: flex;
+    justify-content: space-between;
+}
+
+#hud #top-bar div {
+    background-color: black;
+    color: white;
+    padding: 1vh 2vh;
+    display: flex;
+}
+
+#hud #top-bar div:nth-child(2) {
+    width: 100%;
+    margin: 0 2vh;
+    padding: 0.5vh;
+}
+
+#hud #top-bar #progression {
+    height: 100%;
+    width: calc(100% * 0.45);
+    background-color: green;
+    padding: 0;
+}
+
+#hud #top-bar #position {
+    font-size: 5vh;
+}
+
+#hud #top-bar #position-suffix {
+    font-size: 1.5vh;
+}
+
+#hud #top-bar div:last-child {
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#hud #top-bar div:last-child p:first-child {
+    font-size: 1.5vh;
+}
+
+#hud #top-bar div:last-child p:last-child {
+    font-size: 3vh;
 }
 
 #off-track {
