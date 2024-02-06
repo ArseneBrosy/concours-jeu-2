@@ -21,6 +21,11 @@ const TRACK_WIDTH = 250;
 const MINI_TRACK_SIZE = 400;
 const MINI_TRACK_MARGIN_X = 10;
 const MINI_TRACK_MARGIN_Y = -200;
+
+const TRACK_LAPS = 3;
+for (let i = 0; i < TRACK_LAPS - 1; i++) {
+  document.querySelector("#ends").innerHTML += "<div></div>";
+}
 //endregion
 
 //region Global variables
@@ -60,6 +65,7 @@ let camera = {
 
 let isReturningToTrack = false;
 let timeRemainingToTrack = BACK_TO_TRACK_TIME;
+let timer = 0;
 //endregion
 
 //region Functions
@@ -110,6 +116,16 @@ function distanceToTrack(x, y) {
   return minDistance;
 }
 
+function timerToText(timer) {
+  const minutes = Math.floor(timer / 60000);
+  const seconds = Math.floor(timer / 1000) % 60;
+  const millis = Math.floor(timer / 10) % 100;
+  const minutesText = (minutes < 10 ? "0" : "") + minutes;
+  const secondsText = (seconds < 10 ? "0" : "") + seconds;
+  const millisText = (millis < 10 ? "0" : "") + millis;
+  return `${minutesText}:${secondsText}.${millisText}`;
+}
+
 function returnToTrack(point) {
   const nextPoint = (point + 1) % TRACK.length;
   const xOffset = TRACK[nextPoint][0] - TRACK[point][0];
@@ -134,6 +150,7 @@ function returnToTrack(point) {
 returnToTrack(0);
 //endregion
 
+//region Loop variables
 let trackPos = 0;
 let laps = 0;
 let trackMinX = Infinity;
@@ -149,6 +166,7 @@ for (let point of TRACK) {
 const trackWidth = trackMaxX - trackMinX;
 const trackHeight = trackMaxY - trackMinY;
 const miniTrackMul = Math.max(trackWidth / MINI_TRACK_SIZE, trackHeight / MINI_TRACK_SIZE);
+//endregion
 setInterval(() => {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
@@ -239,7 +257,7 @@ setInterval(() => {
   //endregion
 
   //region Track
-  ctx.strokeStyle = "black";
+  ctx.strokeStyle = "#4e5b5d";
   ctx.lineWidth  = TRACK_WIDTH;
   ctx.beginPath();
   ctx.moveTo(TRACK[0][0] + camOffsetX, TRACK[0][1] + camOffsetY);
@@ -333,7 +351,15 @@ setInterval(() => {
   } else {
     timeRemainingToTrack = BACK_TO_TRACK_TIME;
   }
+  timer += 10;
+  document.querySelector("#time").innerHTML = timerToText(timer);
 }, 10);
+
+setInterval(() => {
+  const pos = laps * TRACK.length + trackPos;
+  const normalizedPos = pos / (TRACK.length * TRACK_LAPS) * 100;
+  document.querySelector("#progression").style.width = `${normalizedPos}%`;
+}, 500);
 
 document.addEventListener("keydown", (e) => {
   if (e.code === "KeyA") {
