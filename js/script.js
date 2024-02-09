@@ -1,7 +1,7 @@
 /**
  * 2nd Game Jam with Alex
  * @author Arsène Brosy
- * @since 09.11.2024
+ * @since 09.01.2024
  */
 
 const canvas = document.querySelector("#game");
@@ -40,7 +40,7 @@ let car = {
   rVelocity: 0,
   direction: 0,
   groundFriction: 1,
-  running: false,
+  running: true,
 
   // constants
   max_rotation_speed: 2,
@@ -66,7 +66,6 @@ let camera = {
 let isReturningToTrack = false;
 let timeRemainingToTrack = BACK_TO_TRACK_TIME;
 let timer = 0;
-let startCountdown = 7;
 //endregion
 
 //region Functions
@@ -127,7 +126,7 @@ function timerToText(timer) {
   return `${minutesText}:${secondsText}.${millisText}`;
 }
 
-function returnToTrack(point) {
+function returnToTrack(point, restart = true) {
   const nextPoint = (point + 1) % TRACK.length;
   const xOffset = TRACK[nextPoint][0] - TRACK[point][0];
   const yOffset = TRACK[nextPoint][1] - TRACK[point][1];
@@ -146,9 +145,14 @@ function returnToTrack(point) {
   car.rVelocity = 0;
   car.xVelocity = 0;
   car.yVelocity = 0;
-  car.running = 0;
+  if (!restart) {
+    return;
+  }
+  setTimeout(() => {
+    car.running = true;
+  }, 500);
 }
-returnToTrack(0);
+returnToTrack(0, false);
 //endregion
 
 //region Loop variables
@@ -167,6 +171,7 @@ for (let point of TRACK) {
 const trackWidth = trackMaxX - trackMinX;
 const trackHeight = trackMaxY - trackMinY;
 const miniTrackMul = Math.max(trackWidth / MINI_TRACK_SIZE, trackHeight / MINI_TRACK_SIZE);
+let isTooFar = false;
 //endregion
 setInterval(() => {
   canvas.width = canvas.clientWidth;
@@ -298,9 +303,11 @@ setInterval(() => {
   //endregion
 
   //region Back to track
+  document.querySelector("#back-to-track").style.display = isTooFar ? "block": "none";
   ctx.strokeStyle = "red";
+  ctx.lineWidth = canvas.width / 60;
   ctx.beginPath();
-  ctx.arc(canvas.width / 2, canvas.height / 2, 20, 0, 2 * Math.PI * (1 - (timeRemainingToTrack / BACK_TO_TRACK_TIME)));
+  ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 60, 0, 2 * Math.PI * (1 - (timeRemainingToTrack / BACK_TO_TRACK_TIME)));
   ctx.stroke();
   //endregion
   //endregion
@@ -342,39 +349,17 @@ setInterval(() => {
   //endregion
 }, 0);
 
-function startTimer() {
-  startCountdown--;
-  document.querySelector("#start-countdown").src = `./images/lights-${startCountdown}.png`;
-  if (startCountdown <= 0) {
-    car.running = true;
-    setTimeout(() => {
-      document.querySelector("#start-countdown").style.display = "none";
-    }, 2000)
-
+setInterval(() => {
+  isTooFar = Math.sqrt((TRACK[trackPos][0] - car.x)**2 + (TRACK[trackPos][1] - car.y)**2) > TRACK_WIDTH * 1.5;
+  /*if (isTooFar) {
+    const point = (trackPos - 5) % TRACK.length;
     setInterval(() => {
-      if (isReturningToTrack && timeRemainingToTrack > 0) {
-        timeRemainingToTrack -= 10;
-        if (timeRemainingToTrack === 0) {
-          const point = (trackPos - 5) % TRACK.length;
-          returnToTrack(point);
-        }
-      } else {
-        timeRemainingToTrack = BACK_TO_TRACK_TIME;
-      }
-      timer += 10;
-      document.querySelector("#time").innerHTML = timerToText(timer);
-    }, 10);
-
-    setInterval(() => {
-      const pos = laps * TRACK.length + trackPos;
-      const normalizedPos = pos / (TRACK.length * TRACK_LAPS) * 100;
-      document.querySelector("#progression").style.width = `${normalizedPos}%`;
-    }, 500);
-  } else {
-    setTimeout(startTimer, 1000);
-  }
-}
-startTimer();
+      returnToTrack(point);
+    }, 3000);
+  }*/
+  timer += 10;
+  document.querySelector("#time").innerHTML = timerToText(timer);
+}, 10);
 
 document.addEventListener("keydown", (e) => {
   if (e.code === "KeyA") {
@@ -383,10 +368,7 @@ document.addEventListener("keydown", (e) => {
   if (e.code === "KeyD") {
     car.direction = 1;
   }
-  if (e.code === "Space") {
-    startCountdown = 1;
-  }
-  if (e.code === "KeyX") {
+  if (e.code === "KeyX" && isTooFar) {
     isReturningToTrack = true;
   }
 });
@@ -395,7 +377,7 @@ document.addEventListener("keyup", (e) => {
   if (e.code === "KeyA" || e.code === "KeyD") {
     car.direction = 0;
   }
-  if (e.code === "KeyX") {
+  if (e.code === "KeyX" || !isTooFar) {
     isReturningToTrack = false;
   }
 });
