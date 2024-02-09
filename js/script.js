@@ -172,6 +172,7 @@ const trackWidth = trackMaxX - trackMinX;
 const trackHeight = trackMaxY - trackMinY;
 const miniTrackMul = Math.max(trackWidth / MINI_TRACK_SIZE, trackHeight / MINI_TRACK_SIZE);
 let isTooFar = false;
+let camOffsetX, camOffsetY;
 //endregion
 setInterval(() => {
   canvas.width = canvas.clientWidth;
@@ -258,8 +259,8 @@ setInterval(() => {
   //region Camera
   const camAdditionalX = camVelocityX * -camera.range_radius / camera.speed * 2;
   const camAdditionalY = camVelocityY * -camera.range_radius / camera.speed * 2;
-  const camOffsetX = -camera.x + camAdditionalX + canvas.clientWidth / 2;
-  const camOffsetY = -camera.y + camAdditionalY + canvas.height / 2;
+  camOffsetX = -camera.x + camAdditionalX + canvas.clientWidth / 2;
+  camOffsetY = -camera.y + camAdditionalY + canvas.height / 2;
   //endregion
 
   //region Track
@@ -347,6 +348,8 @@ setInterval(() => {
   }
   //endregion
   //endregion
+
+  drawInputs();
 }, 0);
 
 setInterval(() => {
