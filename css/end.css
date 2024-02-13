@@ -14,6 +14,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    --animation-delay: 50ms;
 }
 
 p {
@@ -56,10 +57,42 @@ h1, h2 {
 }
 
 .line {
-    height: 5vh;
+    height: 0;
     display: flex;
     color: black;
     margin-bottom: 1vh;
+    animation: 100ms linear line-enter forwards;
+}
+
+.line:nth-child(2) {
+    animation-delay: var(--animation-delay);
+}
+.line:nth-child(3) {
+    animation-delay: calc(var(--animation-delay) * 2);
+}
+.line:nth-child(4) {
+    animation-delay: calc(var(--animation-delay) * 3);
+}
+.line:nth-child(5) {
+    animation-delay: calc(var(--animation-delay) * 4);
+}
+.line:nth-child(6) {
+    animation-delay: calc(var(--animation-delay) * 5);
+}
+.line:nth-child(7) {
+    animation-delay: calc(var(--animation-delay) * 6);
+}
+.line:nth-child(8) {
+    animation-delay: calc(var(--animation-delay) * 7);
+}
+.line:nth-child(9) {
+    animation-delay: calc(var(--animation-delay) * 8);
+}
+.line:nth-child(10) {
+    animation-delay: calc(var(--animation-delay) * 9);
+}
+.line:nth-child(11) {
+    animation-delay: calc(var(--animation-delay) * 10 + 500ms);
 }
 
 .line div {
@@ -70,7 +103,7 @@ h1, h2 {
 }
 
 .line .place {
-    aspect-ratio: 1;
+    width: 5vh;
 }
 
 .line .place p {
@@ -122,7 +155,7 @@ h1, h2 {
 }
 
 .line .time {
-    aspect-ratio: 2;
+    width: 10vh;
 }
 
 .line .time p {
@@ -142,10 +175,32 @@ h1, h2 {
 }
 
 #continue {
+    position: absolute;
+    bottom: 30px;
     background-color: #138700;
     padding: 10px 40px;
     border-radius: 5px;
     font-weight: 1000;
     font-size: 2.5vh;
     cursor: pointer;
+    transform: scale(0);
+    animation: 400ms cubic-bezier(0.12, 0.61, 0.65, 1.59) calc(var(--animation-delay) * 10 + 750ms) button-appear forwards;
+}
+
+@keyframes line-enter {
+    from {
+        height: 0;
+    }
+    to {
+        height: 5vh;
+    }
+}
+
+@keyframes button-appear {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
 }
