@@ -1,0 +1,151 @@
+body {
+    margin: 0;
+    padding: 10px;
+
+    overflow: hidden;
+
+    font-family: Inter, sans-serif;
+
+    background-color: black;
+    color: white;
+
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+p {
+    margin: 0;
+}
+
+#background {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+}
+
+#background div {
+    position: absolute;
+    background: linear-gradient(180deg, #878787, transparent);
+    height: 200vh;
+    width: 3vw;
+    transform: rotate(25deg);
+    left: 30vw;
+    top: -50vh;
+}
+
+#background div:nth-child(2) {
+    left: 35vw;
+}
+
+#background div:nth-child(3) {
+    left: 40vw;
+}
+
+h1, h2 {
+    font-weight: 1000;
+    margin: 0;
+}
+
+#scoreboard {
+    width: 80vw;
+    margin: 20px 0;
+}
+
+.line {
+    height: 5vh;
+    display: flex;
+    color: black;
+    margin-bottom: 1vh;
+}
+
+.line div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+}
+
+.line .place {
+    aspect-ratio: 1;
+}
+
+.line .place p {
+    font-weight: 1000;
+    font-size: 3.5vh;
+}
+
+.line:nth-child(1) .place p::before {
+    content: "1";
+}
+.line:nth-child(2) .place p::before {
+    content: "2";
+}
+.line:nth-child(3) .place p::before {
+    content: "3";
+}
+.line:nth-child(4) .place p::before {
+    content: "4";
+}
+.line:nth-child(5) .place p::before {
+    content: "5";
+}
+.line:nth-child(6) .place p::before {
+    content: "6";
+}
+.line:nth-child(7) .place p::before {
+    content: "7";
+}
+.line:nth-child(8) .place p::before {
+    content: "8";
+}
+.line:nth-child(9) .place p::before {
+    content: "9";
+}
+.line:nth-child(10) .place p::before {
+    content: "10";
+}
+
+.line .name {
+    width: 100%;
+    justify-content: left;
+    padding-left: 10px;
+    background-color: #B8B8B8;
+}
+
+.line .name p {
+    font-weight: bold;
+    font-size: 2.5vh;
+}
+
+.line .time {
+    aspect-ratio: 2;
+}
+
+.line .time p {
+    font-size: 2.2vh;
+}
+
+.line.me div {
+    background-color: #FFEC41;
+}
+
+.line.me .name {
+    background-color: #FFF6A8;
+}
+
+.line:nth-child(10) {
+    margin-bottom: 4vh;
+}
+
+#continue {
+    background-color: #138700;
+    padding: 10px 40px;
+    border-radius: 5px;
+    font-weight: 1000;
+    font-size: 2.5vh;
+    cursor: pointer;
+}
