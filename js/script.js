@@ -8,7 +8,7 @@ const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
 
 //region Constants
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 const GROUND_FRICTION = 3;
 const GROUND_DECELERATION = 0.01;
 const BACK_TO_TRACK_TIME = 1500;
@@ -67,6 +67,8 @@ let isReturningToTrack = false;
 let timeRemainingToTrack = BACK_TO_TRACK_TIME;
 let timer = 0;
 let startCountdown = 7;
+
+let recorded = [];
 //endregion
 
 //region Functions
@@ -149,6 +151,11 @@ function returnToTrack(point) {
   car.running = 0;
 }
 returnToTrack(0);
+recorded.push({
+  x: car.x,
+  y: car.y,
+  r: car.rotation
+});
 //endregion
 
 //region Loop variables
@@ -337,6 +344,15 @@ setInterval(() => {
     ctx.beginPath();
     ctx.arc(car.x + camOffsetX, car.y + camOffsetY, trackDis, 0, 2 * Math.PI);
     ctx.stroke();
+    //Record
+    const recordX = recorded[recorded.length - 1].x;
+    const recordY = recorded[recorded.length - 1].y;
+    const recordR = recorded[recorded.length - 1].r;
+    ctx.translate(recordX + camOffsetX, recordY + camOffsetY);
+    ctx.rotate(recordR * (Math.PI/180));
+    ctx.drawImage(CAR_SPRITE, -car.width / 2, -car.height / 2, car.width, car.height);
+    ctx.rotate(-recordR * (Math.PI/180));
+    ctx.translate(-recordX - camOffsetX, -recordY - camOffsetY);
   }
   //endregion
   //endregion
@@ -351,7 +367,7 @@ function startTimer() {
       document.querySelector("#start-countdown").style.display = "none";
     }, 2000)
 
-    setInterval(() => {
+    const interval10 = setInterval(() => {
       if (isReturningToTrack && timeRemainingToTrack > 0) {
         timeRemainingToTrack -= 10;
         if (timeRemainingToTrack === 0) {
@@ -365,10 +381,22 @@ function startTimer() {
       document.querySelector("#time").innerHTML = timerToText(timer);
     }, 10);
 
-    setInterval(() => {
+    const interval500 = setInterval(() => {
       const pos = laps * TRACK.length + trackPos;
       const normalizedPos = pos / (TRACK.length * TRACK_LAPS) * 100;
+      if (normalizedPos >= 100) {
+        clearInterval(interval10);
+        clearInterval(interval500);
+        car.running = false;
+      }
       document.querySelector("#progression").style.width = `${normalizedPos}%`;
+
+      // record
+      recorded.push({
+        x: car.x,
+        y: car.y,
+        r: car.rotation
+      });
     }, 500);
   } else {
     setTimeout(startTimer, 1000);
