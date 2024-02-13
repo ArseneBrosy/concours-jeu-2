@@ -13,6 +13,8 @@ const GROUND_FRICTION = 3;
 const GROUND_DECELERATION = 0.01;
 const BACK_TO_TRACK_TIME = 1500;
 
+const CURRENT_TRACK = "monaco";
+
 const CAR_SPRITE = new Image();
 CAR_SPRITE.src = "images/car.png";
 
@@ -26,6 +28,8 @@ const TRACK_LAPS = 3;
 for (let i = 0; i < TRACK_LAPS - 1; i++) {
   document.querySelector("#ends").innerHTML += "<div></div>";
 }
+
+let otherPlayers = [];
 //endregion
 
 //region Global variables
@@ -67,6 +71,8 @@ let isReturningToTrack = false;
 let timeRemainingToTrack = BACK_TO_TRACK_TIME;
 let timer = 0;
 let startCountdown = 7;
+
+let recorded = [];
 //endregion
 
 //region Functions
@@ -149,6 +155,11 @@ function returnToTrack(point) {
   car.running = 0;
 }
 returnToTrack(0);
+recorded.push({
+  x: car.x,
+  y: car.y,
+  r: car.rotation
+});
 //endregion
 
 //region Loop variables
@@ -167,6 +178,7 @@ for (let point of TRACK) {
 const trackWidth = trackMaxX - trackMinX;
 const trackHeight = trackMaxY - trackMinY;
 const miniTrackMul = Math.max(trackWidth / MINI_TRACK_SIZE, trackHeight / MINI_TRACK_SIZE);
+let camOffsetX, camOffsetY;
 //endregion
 setInterval(() => {
   canvas.width = canvas.clientWidth;
@@ -253,8 +265,8 @@ setInterval(() => {
   //region Camera
   const camAdditionalX = camVelocityX * -camera.range_radius / camera.speed * 2;
   const camAdditionalY = camVelocityY * -camera.range_radius / camera.speed * 2;
-  const camOffsetX = -camera.x + camAdditionalX + canvas.clientWidth / 2;
-  const camOffsetY = -camera.y + camAdditionalY + canvas.height / 2;
+  camOffsetX = -camera.x + camAdditionalX + canvas.clientWidth / 2;
+  camOffsetY = -camera.y + camAdditionalY + canvas.height / 2;
   //endregion
 
   //region Track
@@ -267,6 +279,21 @@ setInterval(() => {
   }
   ctx.closePath();
   ctx.stroke();
+  //endregion
+
+  //region Others
+  for (let player of otherPlayers) {
+    const recordedIndex = Math.floor(timer / 500);
+    const interpolation = (timer % 500) / 500;
+    const recordX = player[recordedIndex].x + (player[recordedIndex + 1].x - player[recordedIndex].x) * interpolation;
+    const recordY = player[recordedIndex].y + (player[recordedIndex + 1].y - player[recordedIndex].y) * interpolation;
+    const recordR = player[recordedIndex].r + (player[recordedIndex + 1].r - player[recordedIndex].r) * interpolation;
+    ctx.translate(recordX + camOffsetX, recordY + camOffsetY);
+    ctx.rotate(recordR * (Math.PI / 180));
+    ctx.drawImage(CAR_SPRITE, -car.width / 2, -car.height / 2, car.width, car.height);
+    ctx.rotate(-recordR * (Math.PI / 180));
+    ctx.translate(-recordX - camOffsetX, -recordY - camOffsetY);
+  }
   //endregion
 
   //region Car
@@ -351,7 +378,7 @@ function startTimer() {
       document.querySelector("#start-countdown").style.display = "none";
     }, 2000)
 
-    setInterval(() => {
+    const interval10 = setInterval(() => {
       if (isReturningToTrack && timeRemainingToTrack > 0) {
         timeRemainingToTrack -= 10;
         if (timeRemainingToTrack === 0) {
@@ -365,10 +392,22 @@ function startTimer() {
       document.querySelector("#time").innerHTML = timerToText(timer);
     }, 10);
 
-    setInterval(() => {
+    const interval500 = setInterval(() => {
       const pos = laps * TRACK.length + trackPos;
       const normalizedPos = pos / (TRACK.length * TRACK_LAPS) * 100;
+      if (normalizedPos >= 100) {
+        clearInterval(interval10);
+        clearInterval(interval500);
+        car.running = false;
+      }
       document.querySelector("#progression").style.width = `${normalizedPos}%`;
+
+      // record
+      recorded.push({
+        x: car.x,
+        y: car.y,
+        r: car.rotation
+      });
     }, 500);
   } else {
     setTimeout(startTimer, 1000);
