@@ -8,7 +8,7 @@ const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
 
 //region Constants
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 const GROUND_FRICTION = 0.7;
 const GROUND_DECELERATION = 0.002;
 const BACK_TO_TRACK_TIME = 1500;
@@ -49,9 +49,9 @@ let car = {
   // constants
   max_rotation_speed: 0.4,
   rotation_acceleration : 0.002,
-  rotation_friction: 0.0007,
-  acceleration: 0.01,
-  max_speed: 3,
+  rotation_friction: 0.002,
+  acceleration: 0.001,
+  max_speed: 0.6,
   width: 60,
   height: 120,
 };
@@ -243,25 +243,25 @@ setInterval(() => {
       car.rVelocity += car.rotation_friction * (car.rVelocity > 0 ? -1 : 1) * deltaTimeSquare;
     }
   }
-  car.rotation += car.rVelocity/* / car.groundFriction*/;
+  car.rotation += car.rVelocity / car.groundFriction;
   //endregion
 
   //region speed
   //region target velocity
-  car.xTargetVelocity = Math.sin(car.rotation * (Math.PI/180)) * car.max_speed * car.running;
-  car.yTargetVelocity = Math.cos(car.rotation * (Math.PI/180)) * car.max_speed * car.running * -1;
+  car.xTargetVelocity = Math.sin(car.rotation * (Math.PI/180)) * car.max_speed * car.running * deltaTime;
+  car.yTargetVelocity = Math.cos(car.rotation * (Math.PI/180)) * car.max_speed * car.running * -1 * deltaTime;
   //endregion
 
   //region actual velocity
-  if (Math.abs(car.xTargetVelocity - car.xVelocity) <= car.acceleration) {
+  if (Math.abs(car.xTargetVelocity - car.xVelocity) <= car.acceleration * deltaTimeSquare) {
     car.xVelocity = car.xTargetVelocity;
   } else {
-    car.xVelocity += car.acceleration * (car.xTargetVelocity > car.xVelocity ? 1 : -1);
+    car.xVelocity += car.acceleration * (car.xTargetVelocity > car.xVelocity ? 1 : -1) * deltaTimeSquare;
   }
-  if (Math.abs(car.yTargetVelocity - car.yVelocity) <= car.acceleration) {
+  if (Math.abs(car.yTargetVelocity - car.yVelocity) <= car.acceleration * deltaTimeSquare) {
     car.yVelocity = car.yTargetVelocity;
   } else {
-    car.yVelocity += car.acceleration * (car.yTargetVelocity > car.yVelocity ? 1 : -1);
+    car.yVelocity += car.acceleration * (car.yTargetVelocity > car.yVelocity ? 1 : -1) * deltaTimeSquare;
   }
   //endregion
 
@@ -280,8 +280,12 @@ setInterval(() => {
   const camVelocityX = (camera.target.x - camera.x) / camera.range_radius * camera.speed;
   const camVelocityY = (camera.target.y - camera.y) / camera.range_radius * camera.speed;
 
+  /*
   camera.x += camVelocityX;
   camera.y += camVelocityY;
+  */
+  camera.x = camera.target.x;
+  camera.y = camera.target.y;
   //endregion
 
   //region Draw
@@ -361,7 +365,7 @@ setInterval(() => {
   if (DEBUG_MODE) {
     // Velocity
     ctx.lineWidth = 2;
-    const mul = 100 / car.max_speed;
+    const mul = 100 / (car.max_speed * deltaTime);
     // target
     ctx.strokeStyle = "blue";
     ctx.beginPath();
@@ -398,7 +402,7 @@ function startTimer() {
   startCountdown--;
   document.querySelector("#start-countdown").src = `./images/lights-${startCountdown}.png`;
   if (startCountdown <= 0) {
-    //car.running = true;
+    car.running = true;
     setTimeout(() => {
       document.querySelector("#start-countdown").style.display = "none";
     }, 2000)
