@@ -47,11 +47,11 @@ let car = {
   running: false,
 
   // constants
-  max_rotation_speed: 0.4,
+  max_rotation_speed: 0.3,
   rotation_acceleration : 0.002,
   rotation_friction: 0.002,
-  acceleration: 0.001,
-  max_speed: 0.6,
+  acceleration: 0.0005,
+  max_speed: 0.65,
   width: 60,
   height: 120,
 };
@@ -189,7 +189,7 @@ let camOffsetX, camOffsetY;
 let isTooFar = false;
 let nextSecond = Date.now() + 1000;
 let frameCounter = 0;
-let deltaTime = 0;
+let deltaTime = 1;
 //endregion
 setInterval(() => {
   canvas.width = canvas.clientWidth;
@@ -201,7 +201,6 @@ setInterval(() => {
     frameCounter++;
   } else {
     deltaTime = 1000 / frameCounter;
-    console.log(deltaTime);
     nextSecond = Date.now() + 1000;
     frameCounter = 0;
   }
