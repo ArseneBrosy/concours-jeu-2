@@ -69,10 +69,14 @@ let camera = {
 
 let isReturningToTrack = false;
 let timeRemainingToTrack = BACK_TO_TRACK_TIME;
+let startReturningToTrack = 0;
 let timer = 0;
 let startCountdown = 7;
 
 let recorded = [];
+
+let gameStarted = false;
+let gameStartedAt = 0;
 //endregion
 
 //region Functions
@@ -126,10 +130,10 @@ function distanceToTrack(x, y) {
 function timerToText(timer) {
   const minutes = Math.floor(timer / 60000);
   const seconds = Math.floor(timer / 1000) % 60;
-  const millis = Math.floor(timer / 10) % 100;
+  const millis = Math.floor(timer) % 1000;
   const minutesText = (minutes < 10 ? "0" : "") + minutes;
   const secondsText = (seconds < 10 ? "0" : "") + seconds;
-  const millisText = (millis < 10 ? "0" : "") + millis;
+  const millisText = (millis < 100 ? "0" : "") + (millis < 10 ? "0" : "") + millis;
   return `${minutesText}:${secondsText}.${millisText}`;
 }
 
@@ -194,7 +198,6 @@ let deltaTime = 1;
 setInterval(() => {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
-  const deltaTimeSquare = deltaTime ** 2;
 
   //region Deltatime
   if (Date.now() < nextSecond) {
@@ -203,6 +206,13 @@ setInterval(() => {
     deltaTime = 1000 / frameCounter;
     nextSecond = Date.now() + 1000;
     frameCounter = 0;
+  }
+  const deltaTimeSquare = deltaTime ** 2;
+  //endregion
+
+  //region Timer
+  if (gameStarted) {
+    timer = Date.now() - gameStartedAt;
   }
   //endregion
 
@@ -284,6 +294,20 @@ setInterval(() => {
   camera.y += camVelocityY;
   //endregion
 
+  //region Return to track
+  isTooFar = Math.sqrt((TRACK[trackPos][0] - car.x)**2 + (TRACK[trackPos][1] - car.y)**2) > TRACK_WIDTH * 1.5;
+  if (isReturningToTrack && timeRemainingToTrack > 0) {
+    timeRemainingToTrack = BACK_TO_TRACK_TIME - (Date.now() - startReturningToTrack)
+    if (timeRemainingToTrack === 0) {
+      const point = (trackPos - 5) % TRACK.length;
+      returnToTrack(point);
+    }
+  } else {
+    timeRemainingToTrack = BACK_TO_TRACK_TIME;
+    startReturningToTrack = Date.now();
+  }
+  //endregion
+
   //region Draw
   //region Camera
   const camAdditionalX = camVelocityX * -camera.range_radius / camera.speed * 2;
@@ -331,6 +355,7 @@ setInterval(() => {
 
   //region HUD
   document.querySelector("#off-track").style.display = onTrack ? "none" : "block";
+  document.querySelector("#time").innerHTML = timerToText(timer);
 
   //region Minitrack
   ctx.strokeStyle = "grey";
@@ -401,30 +426,16 @@ function startTimer() {
   document.querySelector("#start-countdown").src = `./images/lights-${startCountdown}.png`;
   if (startCountdown <= 0) {
     car.running = true;
+    gameStarted = true;
+    gameStartedAt = Date.now();
     setTimeout(() => {
       document.querySelector("#start-countdown").style.display = "none";
     }, 2000)
-
-    const interval10 = setInterval(() => {
-      isTooFar = Math.sqrt((TRACK[trackPos][0] - car.x)**2 + (TRACK[trackPos][1] - car.y)**2) > TRACK_WIDTH * 1.5;
-      if (isReturningToTrack && timeRemainingToTrack > 0) {
-        timeRemainingToTrack -= 10;
-        if (timeRemainingToTrack === 0) {
-          const point = (trackPos - 5) % TRACK.length;
-          returnToTrack(point);
-        }
-      } else {
-        timeRemainingToTrack = BACK_TO_TRACK_TIME;
-      }
-      timer += 10;
-      document.querySelector("#time").innerHTML = timerToText(timer);
-    }, 10);
 
     const interval500 = setInterval(() => {
       const pos = laps * TRACK.length + trackPos;
       const normalizedPos = pos / (TRACK.length * TRACK_LAPS) * 100;
       if (normalizedPos >= 100) {
-        clearInterval(interval10);
         clearInterval(interval500);
         car.running = false;
       }
