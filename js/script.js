@@ -276,16 +276,13 @@ setInterval(() => {
   //region Camera
   camera.target.x = car.x;
   camera.target.y = car.y;
+  camera.speed = car.max_speed * deltaTime;
 
   const camVelocityX = (camera.target.x - camera.x) / camera.range_radius * camera.speed;
   const camVelocityY = (camera.target.y - camera.y) / camera.range_radius * camera.speed;
 
-  /*
   camera.x += camVelocityX;
   camera.y += camVelocityY;
-  */
-  camera.x = camera.target.x;
-  camera.y = camera.target.y;
   //endregion
 
   //region Draw
@@ -396,7 +393,7 @@ setInterval(() => {
   }
   //endregion
   //endregion
-}, 50);
+}, 0);
 
 function startTimer() {
   startCountdown--;
