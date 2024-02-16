@@ -30,6 +30,8 @@ for (let i = 0; i < TRACK_LAPS - 1; i++) {
 }
 
 let otherPlayers = [];
+
+const RECORD_INTERVAL = 500;
 //endregion
 
 //region Global variables
@@ -194,6 +196,7 @@ let isTooFar = false;
 let nextSecond = Date.now() + 1000;
 let frameCounter = 0;
 let deltaTime = 1;
+let nextRecord = 0;
 //endregion
 setInterval(() => {
   canvas.width = canvas.clientWidth;
@@ -382,6 +385,15 @@ setInterval(() => {
   ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 60, 0, 2 * Math.PI * (1 - (timeRemainingToTrack / BACK_TO_TRACK_TIME)));
   ctx.stroke();
   //endregion
+
+  //region Progress bar
+  const pos = laps * TRACK.length + trackPos;
+  const normalizedPos = pos / (TRACK.length * TRACK_LAPS) * 100;
+  if (normalizedPos >= 100) {
+    car.running = false;
+  }
+  document.querySelector("#progression").style.width = `${normalizedPos}%`;
+  //endregion
   //endregion
 
   //region Debug
@@ -419,6 +431,17 @@ setInterval(() => {
   }
   //endregion
   //endregion
+
+  //region Record
+  if (timer >= nextRecord) {
+    nextRecord += RECORD_INTERVAL;
+    recorded.push({
+      x: car.x,
+      y: car.y,
+      r: car.rotation
+    });
+  }
+  //endregion
 }, 0);
 
 function startTimer() {
@@ -430,24 +453,7 @@ function startTimer() {
     gameStartedAt = Date.now();
     setTimeout(() => {
       document.querySelector("#start-countdown").style.display = "none";
-    }, 2000)
-
-    const interval500 = setInterval(() => {
-      const pos = laps * TRACK.length + trackPos;
-      const normalizedPos = pos / (TRACK.length * TRACK_LAPS) * 100;
-      if (normalizedPos >= 100) {
-        clearInterval(interval500);
-        car.running = false;
-      }
-      document.querySelector("#progression").style.width = `${normalizedPos}%`;
-
-      // record
-      recorded.push({
-        x: car.x,
-        y: car.y,
-        r: car.rotation
-      });
-    }, 500);
+    }, 2000);
   } else {
     setTimeout(startTimer, 1000);
   }
@@ -455,10 +461,10 @@ function startTimer() {
 startTimer();
 
 document.addEventListener("keydown", (e) => {
-  if (e.code === "KeyA") {
+  if (e.code === "KeyA" && gameStarted) {
     car.direction = -1;
   }
-  if (e.code === "KeyD") {
+  if (e.code === "KeyD" && gameStarted) {
     car.direction = 1;
   }
   if (e.code === "Space") {
