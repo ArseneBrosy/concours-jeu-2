@@ -8,8 +8,8 @@ const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
 
 //region Constants
-const DEBUG_MODE = true;
-const GROUND_FRICTION = 0.7;
+const DEBUG_MODE = false;
+const GROUND_FRICTION = 3;
 const GROUND_DECELERATION = 0.002;
 const BACK_TO_TRACK_TIME = 1500;
 
@@ -222,12 +222,12 @@ setInterval(() => {
 
   //region Car
   //region ground friction
-  /*const gftarget = onTrack ? 1 : GROUND_FRICTION;
-  if (Math.abs(car.groundFriction - gftarget) <= GROUND_DECELERATION) {
+  const gftarget = onTrack ? 1 : GROUND_FRICTION;
+  if (Math.abs(car.groundFriction - gftarget) <= GROUND_DECELERATION * deltaTimeSquare) {
     car.groundFriction = gftarget;
   } else {
-    car.groundFriction += GROUND_DECELERATION * (car.groundFriction < gftarget ? 1 : -1);
-  }*/
+    car.groundFriction += GROUND_DECELERATION * (car.groundFriction < gftarget ? 1 : -1) * deltaTimeSquare;
+  }
   //endregion
 
   //region rotation
@@ -396,7 +396,7 @@ setInterval(() => {
   }
   //endregion
   //endregion
-}, 0);
+}, 50);
 
 function startTimer() {
   startCountdown--;
