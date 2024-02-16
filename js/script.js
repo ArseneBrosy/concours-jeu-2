@@ -9,8 +9,8 @@ const ctx = canvas.getContext("2d");
 
 //region Constants
 const DEBUG_MODE = false;
-const GROUND_FRICTION = 3;
-const GROUND_DECELERATION = 0.01;
+const GROUND_FRICTION = 0.7;
+const GROUND_DECELERATION = 0.002;
 const BACK_TO_TRACK_TIME = 1500;
 
 const CURRENT_TRACK = "monaco";
@@ -47,9 +47,9 @@ let car = {
   running: false,
 
   // constants
-  max_rotation_speed: 2,
-  rotation_acceleration : 0.02,
-  rotation_friction: 0.03,
+  max_rotation_speed: 0.4,
+  rotation_acceleration : 0.002,
+  rotation_friction: 0.0007,
   acceleration: 0.01,
   max_speed: 3,
   width: 60,
@@ -187,10 +187,25 @@ const trackHeight = trackMaxY - trackMinY;
 const miniTrackMul = Math.max(trackWidth / MINI_TRACK_SIZE, trackHeight / MINI_TRACK_SIZE);
 let camOffsetX, camOffsetY;
 let isTooFar = false;
+let nextSecond = Date.now() + 1000;
+let frameCounter = 0;
+let deltaTime = 0;
 //endregion
 setInterval(() => {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
+  const deltaTimeSquare = deltaTime ** 2;
+
+  //region Deltatime
+  if (Date.now() < nextSecond) {
+    frameCounter++;
+  } else {
+    deltaTime = 1000 / frameCounter;
+    console.log(deltaTime);
+    nextSecond = Date.now() + 1000;
+    frameCounter = 0;
+  }
+  //endregion
 
   //region Physics
   //region Track
@@ -207,28 +222,28 @@ setInterval(() => {
 
   //region Car
   //region ground friction
-  const gftarget = onTrack ? 1 : GROUND_FRICTION;
+  /*const gftarget = onTrack ? 1 : GROUND_FRICTION;
   if (Math.abs(car.groundFriction - gftarget) <= GROUND_DECELERATION) {
     car.groundFriction = gftarget;
   } else {
     car.groundFriction += GROUND_DECELERATION * (car.groundFriction < gftarget ? 1 : -1);
-  }
+  }*/
   //endregion
 
   //region rotation
-  car.rVelocity += car.rotation_acceleration * car.direction;
-  car.rVelocity = Math.max(Math.min(car.rVelocity, car.max_rotation_speed), -car.max_rotation_speed);
+  car.rVelocity += car.rotation_acceleration * car.direction * deltaTimeSquare;
+  car.rVelocity = Math.max(Math.min(car.rVelocity, car.max_rotation_speed * deltaTime), -car.max_rotation_speed * deltaTime);
   //endregion
 
   //region rotation friction
   if (car.direction === 0 || car.running === false) {
-    if (Math.abs(car.rVelocity) <= car.rotation_friction) {
+    if (Math.abs(car.rVelocity) <= car.rotation_friction * deltaTimeSquare) {
       car.rVelocity = 0;
     } else {
-      car.rVelocity += car.rotation_friction * (car.rVelocity > 0 ? -1 : 1);
+      car.rVelocity += car.rotation_friction * (car.rVelocity > 0 ? -1 : 1) * deltaTimeSquare;
     }
   }
-  car.rotation += car.rVelocity / car.groundFriction;
+  car.rotation += car.rVelocity/* / car.groundFriction*/;
   //endregion
 
   //region speed
@@ -383,7 +398,7 @@ function startTimer() {
   startCountdown--;
   document.querySelector("#start-countdown").src = `./images/lights-${startCountdown}.png`;
   if (startCountdown <= 0) {
-    car.running = true;
+    //car.running = true;
     setTimeout(() => {
       document.querySelector("#start-countdown").style.display = "none";
     }, 2000)

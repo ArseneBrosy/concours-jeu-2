@@ -9,10 +9,10 @@ const firebaseConfig = {
 
 export const app = initializeApp(firebaseConfig);
 export const database = getDatabase(app);
-
+/*
 onValue(ref(database, `/${CURRENT_TRACK}`), (snapshot) => {
   const value = snapshot.val();
   for (let player of Object.values(value)) {
     otherPlayers.push(player.playback);
   }
-});
+});*/
