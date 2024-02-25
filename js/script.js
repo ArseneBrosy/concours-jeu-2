@@ -177,8 +177,28 @@ recorded.push({
   r: car.rotation
 });
 
+function calcPlace() {
+  let place = 0;
+  for (let i of scoreboard) {
+    if (i < timer) {
+      place++;
+    }
+  }
+  return place;
+}
+
 function endGame() {
-  document.dispatchEvent(new CustomEvent("add-scoreboard", { detail: { name: playerName, recorded: recorded, time: timer }}));
+  let place = calcPlace();
+  if (place < 10) {
+    document.dispatchEvent(new CustomEvent("add-scoreboard", {
+      detail: {
+        place: place,
+        name: playerName,
+        recorded: recorded,
+        time: timer
+      }
+    }));
+  }
 }
 //endregion
 
@@ -366,6 +386,7 @@ setInterval(() => {
   //region HUD
   document.querySelector("#off-track").style.display = onTrack ? "none" : "block";
   document.querySelector("#time").innerHTML = timerToText(timer);
+  document.querySelector("#position").innerHTML = calcPlace();
 
   //region Minitrack
   ctx.strokeStyle = "grey";

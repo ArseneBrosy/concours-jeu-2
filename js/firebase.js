@@ -9,16 +9,26 @@ const firebaseConfig = {
 
 export const app = initializeApp(firebaseConfig);
 export const database = getDatabase(app);
+let currentTrack;
+let gotValues = false;
 
 onValue(ref(database, CURRENT_TRACK), (snapshot) => {
+  if (gotValues) {
+    return;
+  }
+  gotValues = true;
+
   const value = snapshot.val();
   for (let player of Object.values(value)) {
     otherPlayers.push(player.playback);
+    scoreboard.push(player.time);
   }
+  currentTrack = value;
 });
 
-function addPlayerToScoreBoard(playerName, recorded, time) {
-  set(ref(database, `${CURRENT_TRACK}/${playerName}`), {
+function addPlayerToScoreBoard(place, playerName, recorded, time) {
+  set(ref(database, `${CURRENT_TRACK}/${place}`), {
+    name: playerName,
     playback: recorded,
     time: time
   });
@@ -26,5 +36,9 @@ function addPlayerToScoreBoard(playerName, recorded, time) {
 
 document.addEventListener("add-scoreboard", (e) => {
   console.log(e.detail);
-  addPlayerToScoreBoard(e.detail.name, e.detail.recorded, e.detail.time);
+  let scoreboardLength = Object.keys(currentTrack).length;
+  for (let i = scoreboardLength; i > e.detail.place; i--) {
+    addPlayerToScoreBoard(i, currentTrack[i - 1].name, currentTrack[i - 1].playback, currentTrack[i - 1].time);
+  }
+  addPlayerToScoreBoard(e.detail.place, e.detail.name, e.detail.recorded, e.detail.time);
 });
