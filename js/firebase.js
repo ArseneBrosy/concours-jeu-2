@@ -1,5 +1,5 @@
 import {initializeApp} from "https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js";
-import {getDatabase, ref, onValue, update} from "https://www.gstatic.com/firebasejs/9.19.1/firebase-database.js";
+import {getDatabase, ref, onValue, set} from "https://www.gstatic.com/firebasejs/9.19.1/firebase-database.js";
 
 let lastShowedUserUID;
 
@@ -23,3 +23,8 @@ function addPlayerToScoreBoard(playerName, recorded, time) {
     time: time
   });
 }
+
+document.addEventListener("add-scoreboard", (e) => {
+  console.log(e.detail);
+  addPlayerToScoreBoard(e.detail.name, e.detail.recorded, e.detail.time);
+});

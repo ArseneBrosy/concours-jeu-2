@@ -75,6 +75,7 @@ let startReturningToTrack = 0;
 let timer = 0;
 let startCountdown = 7;
 
+let scoreboard = [];
 let recorded = [];
 let playerName = "TabouretSoyeux";
 
@@ -177,7 +178,7 @@ recorded.push({
 });
 
 function endGame() {
-  console.log("end");
+  document.dispatchEvent(new CustomEvent("add-scoreboard", { detail: { name: playerName, recorded: recorded, time: timer }}));
 }
 //endregion
 
