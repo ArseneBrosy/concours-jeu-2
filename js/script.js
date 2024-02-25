@@ -78,6 +78,8 @@ let startCountdown = 7;
 let scoreboard = [];
 let recorded = [];
 let playerName = "TabouretSoyeux";
+let trackPos = 0;
+let position = 1;
 
 let gameStarted = false;
 let gameStartedAt = 0;
@@ -174,7 +176,8 @@ returnToTrack(0, false);
 recorded.push({
   x: car.x,
   y: car.y,
-  r: car.rotation
+  r: car.rotation,
+  p: trackPos
 });
 
 function calcPlace() {
@@ -207,7 +210,6 @@ function endGame() {
 //endregion
 
 //region Loop variables
-let trackPos = 0;
 let laps = 0;
 let trackMinX = Infinity;
 let trackMaxX = -Infinity;
@@ -366,6 +368,7 @@ setInterval(() => {
   for (let player of otherPlayers) {
     const recordedIndex = Math.floor(timer / 500);
     if (recordedIndex < player.length - 1) {
+      // car
       const interpolation = (timer % 500) / 500;
       const recordX = player[recordedIndex].x + (player[recordedIndex + 1].x - player[recordedIndex].x) * interpolation;
       const recordY = player[recordedIndex].y + (player[recordedIndex + 1].y - player[recordedIndex].y) * interpolation;
@@ -390,7 +393,17 @@ setInterval(() => {
   //region HUD
   document.querySelector("#off-track").style.display = onTrack ? "none" : "block";
   document.querySelector("#time").innerHTML = timerToText(timer);
-  document.querySelector("#position").innerHTML = calcPlace();
+  document.querySelector("#position").innerHTML = position.toString();
+  document.querySelector("#position-suffix").innerHTML = "th";
+  if (position === 1) {
+    document.querySelector("#position-suffix").innerHTML = "st";
+  }
+  if (position === 2) {
+    document.querySelector("#position-suffix").innerHTML = "nd";
+  }
+  if (position === 3) {
+    document.querySelector("#position-suffix").innerHTML = "rd";
+  }
 
   //region Minitrack
   ctx.strokeStyle = "grey";
@@ -402,6 +415,21 @@ setInterval(() => {
   }
   ctx.closePath();
   ctx.stroke();
+  //region Others
+  ctx.fillStyle = "yellow";
+  position = 1;
+  for (let player of otherPlayers) {
+    const recordedIndex = Math.floor(timer / 500);
+    if (recordedIndex < player.length - 1) {
+      ctx.beginPath();
+      ctx.arc(TRACK[player[recordedIndex].p % TRACK.length][0] / miniTrackMul + MINI_TRACK_MARGIN_X, TRACK[player[recordedIndex].p % TRACK.length][1] / miniTrackMul + canvas.height - MINI_TRACK_SIZE - MINI_TRACK_MARGIN_Y, 5, 0, 2 * Math.PI);
+      ctx.fill();
+      if (player[recordedIndex].p > trackPos + laps * TRACK.length) {
+        position++;
+      }
+    }
+  }
+  //endregion
   // position
   ctx.fillStyle = "red";
   ctx.beginPath();
@@ -474,7 +502,8 @@ setInterval(() => {
     recorded.push({
       x: car.x,
       y: car.y,
-      r: car.rotation
+      r: car.rotation,
+      p: trackPos + laps * TRACK.length
     });
   }
   //endregion

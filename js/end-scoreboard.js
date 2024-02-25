@@ -25,7 +25,7 @@ onValue(ref(database, CURRENT_TRACK), (snapshot) => {
   let me = parseInt(localStorage.getItem("place"));
   document.querySelector("#scoreboard").innerHTML = "";
   for (let player of Object.values(value)) {
-    document.querySelector("#scoreboard").innerHTML += `<div class="line${index === me ? " me" : ""}"><div class="place"><p></p></div><div class="name"><p>${player.name}</p></div><div class="time"><p>${timerToText(player.time)}</p></div></div>`;
+    document.querySelector("#scoreboard").innerHTML += `<div class="line${index === me ? " me" : ""}"><div class="place"><p></p></div><div class="name"><p>${player.name}</p></div><div class="date"><p>${player.date}</p></div><div class="time"><p>${timerToText(player.time)}</p></div></div>`;
     index++;
   }
 });

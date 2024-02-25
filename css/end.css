@@ -103,7 +103,7 @@ h1, h2 {
 }
 
 .line .place {
-    width: 5vh;
+    aspect-ratio: 1;
 }
 
 .line .place p {
@@ -154,8 +154,14 @@ h1, h2 {
     font-size: 2.5vh;
 }
 
+.line .date {
+    padding: 1vw;
+    border-right: 1px solid black;
+}
+
 .line .time {
     width: 13vh;
+    padding: 1vw;
 }
 
 .line .time p {
