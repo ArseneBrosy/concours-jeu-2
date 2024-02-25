@@ -24,7 +24,7 @@ const MINI_TRACK_SIZE = 400;
 const MINI_TRACK_MARGIN_X = 10;
 const MINI_TRACK_MARGIN_Y = -200;
 
-const TRACK_LAPS = 3;
+const TRACK_LAPS = 0.1;
 for (let i = 0; i < TRACK_LAPS - 1; i++) {
   document.querySelector("#ends").innerHTML += "<div></div>";
 }
@@ -76,9 +76,11 @@ let timer = 0;
 let startCountdown = 7;
 
 let recorded = [];
+let playerName = "TabouretSoyeux";
 
 let gameStarted = false;
 let gameStartedAt = 0;
+let gameEnded = false;
 //endregion
 
 //region Functions
@@ -173,6 +175,10 @@ recorded.push({
   y: car.y,
   r: car.rotation
 });
+
+function endGame() {
+  console.log("end");
+}
 //endregion
 
 //region Loop variables
@@ -389,10 +395,14 @@ setInterval(() => {
   //region Progress bar
   const pos = laps * TRACK.length + trackPos;
   const normalizedPos = pos / (TRACK.length * TRACK_LAPS) * 100;
-  if (normalizedPos >= 100) {
+  if (normalizedPos >= 100 && !gameEnded) {
     car.running = false;
+    gameEnded = true;
+    endGame();
   }
-  document.querySelector("#progression").style.width = `${normalizedPos}%`;
+  if (!gameEnded) {
+    document.querySelector("#progression").style.width = `${normalizedPos}%`;
+  }
   //endregion
   //endregion
 
@@ -433,7 +443,7 @@ setInterval(() => {
   //endregion
 
   //region Record
-  if (timer >= nextRecord) {
+  if (timer >= nextRecord && !gameEnded) {
     nextRecord += RECORD_INTERVAL;
     recorded.push({
       x: car.x,
