@@ -189,6 +189,7 @@ function calcPlace() {
 
 function endGame() {
   let place = calcPlace();
+  localStorage.setItem("place", place);
   if (place < 10) {
     document.dispatchEvent(new CustomEvent("add-scoreboard", {
       detail: {
@@ -199,6 +200,9 @@ function endGame() {
       }
     }));
   }
+  setTimeout(() => {
+    //window.location = "end.html";
+  }, 2000);
 }
 //endregion
 

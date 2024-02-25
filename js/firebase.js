@@ -37,7 +37,7 @@ function addPlayerToScoreBoard(place, playerName, recorded, time) {
 document.addEventListener("add-scoreboard", (e) => {
   console.log(e.detail);
   let scoreboardLength = Object.keys(currentTrack).length;
-  for (let i = scoreboardLength; i > e.detail.place; i--) {
+  for (let i = scoreboardLength - (scoreboardLength < 10 ? 0 : 1); i > e.detail.place; i--) {
     addPlayerToScoreBoard(i, currentTrack[i - 1].name, currentTrack[i - 1].playback, currentTrack[i - 1].time);
   }
   addPlayerToScoreBoard(e.detail.place, e.detail.name, e.detail.recorded, e.detail.time);
