@@ -192,7 +192,7 @@ function calcPlace() {
 
 function endGame() {
   let place = calcPlace();
-  localStorage.setItem("place", place);
+  localStorage.setItem("place", place.toString());
   if (place < 10) {
     document.dispatchEvent(new CustomEvent("add-scoreboard", {
       detail: {
@@ -241,6 +241,7 @@ setInterval(() => {
   } else {
     deltaTime = 1000 / frameCounter;
     nextSecond = Date.now() + 1000;
+    console.log(frameCounter);
     frameCounter = 0;
   }
   const deltaTimeSquare = deltaTime ** 2;
@@ -353,7 +354,7 @@ setInterval(() => {
   //endregion
 
   //region Track
-  ctx.strokeStyle = "#4e5b5d";
+  ctx.strokeStyle = "#90999b";
   ctx.lineWidth  = TRACK_WIDTH;
   ctx.beginPath();
   ctx.moveTo(TRACK[0][0] + camOffsetX, TRACK[0][1] + camOffsetY);
@@ -362,6 +363,11 @@ setInterval(() => {
   }
   ctx.closePath();
   ctx.stroke();
+  //endregion
+
+  //region Background
+  canvas.style.backgroundPositionX = camOffsetX + "px";
+  canvas.style.backgroundPositionY = camOffsetY + "px";
   //endregion
 
   //region Others
@@ -427,6 +433,8 @@ setInterval(() => {
       if (player[recordedIndex].p > trackPos + laps * TRACK.length) {
         position++;
       }
+    } else {
+      position++;
     }
   }
   //endregion
