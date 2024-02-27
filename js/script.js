@@ -11,7 +11,7 @@ const ctx = canvas.getContext("2d");
 const DEBUG_MODE = false;
 const GROUND_FRICTION = 3;
 const GROUND_DECELERATION = 0.002;
-const BACK_TO_TRACK_TIME = 1500;
+const BACK_TO_TRACK_TIME = 750;
 
 const CURRENT_TRACK = "monaco";
 
@@ -80,7 +80,7 @@ let startCountdown = 7;
 
 let scoreboard = [];
 let recorded = [];
-let playerName = "TabouretSoyeux";
+let playerName = localStorage.getItem("pseudo");
 let trackPos = 0;
 let position = 1;
 
@@ -208,7 +208,7 @@ function endGame() {
     }));
   }
   setTimeout(() => {
-    //window.location = "end.html";
+    window.location = "end.html";
   }, 2000);
 }
 //endregion

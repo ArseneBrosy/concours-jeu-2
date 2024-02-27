@@ -1,0 +1,122 @@
+body {
+    margin: 0;
+
+    overflow: hidden;
+
+    font-family: Inter, sans-serif;
+
+    box-sizing: border-box;
+
+    height: 100vh;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: end;
+    padding: 5vw;
+    flex-direction: column;
+}
+
+#background-image {
+    min-width: 105vw;
+    min-height: 105vh;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    animation: 10s ease-in-out animate-background infinite;
+    pointer-events: none;
+    z-index: -2;
+}
+
+@keyframes animate-background {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        transform: translate(calc(-50% + 0.5vw), calc(-50% - 0.2vh)) scale(1.05);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+#logo {
+    position: absolute;
+    z-index: -1;
+    width: 30vw;
+    image-rendering: pixelated;
+    left: 5vw;
+    top: 10vh;
+    transform: rotate(-10deg);
+}
+
+#pseudo {
+    width: 20vw;
+    padding: 10px 20px;
+    outline: none;
+    border: 1px solid black;
+    background: linear-gradient(90deg, #808080, #efefef);
+    font-weight: bold;
+    font-size: 1rem;
+    box-sizing: content-box;
+    box-shadow: rgba(0, 0, 0, 0.5) 0 0 30px 5px;
+}
+
+#pseudo.error {
+    animation: 1s linear error-pseudo forwards;
+}
+
+@keyframes error-pseudo {
+    0% {
+        border: 2px solid red;
+    }
+    10% {
+        transform: translateX(-5px);
+    }
+    20% {
+        transform: translateX(5px);
+    }
+    30% {
+        transform: translateX(-5px);
+    }
+    40% {
+        transform: translateX(5px);
+    }
+    50% {
+        transform: translateX(-5px);
+    }
+    60% {
+        transform: translateX(5px);
+    }
+    70% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(0);
+        border: 2px solid red;
+    }
+}
+
+#play {
+    width: 20vw;
+    padding: 10px 20px;
+    margin: 10px 0;
+    outline: none;
+    border: none;
+    background: linear-gradient(90deg, #490000, #930000);
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    box-sizing: content-box;
+    box-shadow: rgba(0, 0, 0, 0.5) 0 0 30px 5px;
+}
+
+#pseudo-error {
+    width: calc(20vw + 40px);
+    margin: 0;
+    color: red;
+    font-weight: bold;
+    font-size: 1rem;
+    box-sizing: content-box;
+    text-align: left;
+}

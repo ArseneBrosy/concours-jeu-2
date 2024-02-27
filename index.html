@@ -2,36 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Drifting race</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Drifting Race</title>
+    <link rel="stylesheet" href="css/home.css">
 </head>
 <body>
-    <canvas id="game"></canvas>
-    <div id="hud">
-        <div id="top-bar">
-            <div>
-                <p id="position">1</p>
-                <p id="position-suffix">st</p>
-            </div>
-            <div>
-                <div id="progression"></div>
-                <div id="ends">
-                </div>
-            </div>
-            <div>
-                <p>time</p>
-                <p id="time">00:00.00</p>
-            </div>
-        </div>
-        <p id="off-track" style="display: none">Off track</p>
-        <img id="start-countdown" src="./images/lights-6.png" alt="f1 lights">
-        <div id="back-to-track" style="display: none">
-            <div><p>X</p></div>
-            <p>Go back to track</p>
-        </div>
-    </div>
+    <img src="images/home-background.png" id="background-image" alt="background">
+    <img src="images/logo.png" id="logo" alt="logo">
 
-    <script src="js/script.js"></script>
-    <script src="js/firebase.js" type="module"></script>
+    <p id="pseudo-error" style="display: none">Error</p>
+    <input type="text" name="pseudo" id="pseudo" placeholder="Pseudo">
+    <button id="play">Play</button>
+
+    <script src="js/home.js"></script>
 </body>
 </html>
