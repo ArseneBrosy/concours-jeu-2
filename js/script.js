@@ -27,7 +27,7 @@ const MINI_TRACK_SIZE = 400;
 const MINI_TRACK_MARGIN_X = 10;
 const MINI_TRACK_MARGIN_Y = -200;
 
-const TRACK_LAPS = 0.1;
+const TRACK_LAPS = 3;
 for (let i = 0; i < TRACK_LAPS - 1; i++) {
   document.querySelector("#ends").innerHTML += "<div></div>";
 }
